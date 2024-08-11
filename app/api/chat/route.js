@@ -28,6 +28,31 @@ https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone/
 Your goal is to privde accurate information, assist with common inquiries, and ensure a positive experience for all NeuroAI users.
 */
 
+async function getContext(query) {
+    try {
+        
+        const params = {
+            input : {
+                text: query
+            },
+            retrieveAndGenerateConfiguration: {
+                type: 'KNOWLEDGE_BASE',
+                knowledgeBaseConfiguration: {
+                    knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
+                    modelArn: process.env.MODEL_ARN
+                }
+            }
+        };
+
+        const command = new retrieveAndGenerateCommand(params);
+        const response = await bedrock.Client.send(command);
+        return response.output.text;
+    } catch(error) {
+        console.error('Error:', error);
+        return null;
+    }
+}
+
 export async function POST(req){    //frontend
     const openai = new OpenAI()
     const data = await req.json()
@@ -43,7 +68,7 @@ export async function POST(req){    //frontend
         model: 'gpt-4o-mini',
         stream: true,
     })
-
+    console.log(await getContext(messages));
     const stream = new ReadableStream({ //start streaming it
         async start(controller){
             const encoder = new TextEncoder()
