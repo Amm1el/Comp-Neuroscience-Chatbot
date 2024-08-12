@@ -1,5 +1,4 @@
 import {NextResponse} from 'next/server'
-import OpenAI from 'openai'
 
 const systemPrompt = 'You are an AI-powered customer support assistant for NeuroAI, a platform dedicated to providing AI-driven support for students interested in the field of computational neuroscience field.'
 /*
@@ -54,21 +53,12 @@ async function getContext(query) {
 }
 
 export async function POST(req){    //frontend
-    const openai = new OpenAI()
-    const data = await req.json()
-
-    const completion = await openai.chat.completions.create({   //completion
-        messages: [
-            {
-                role: 'system', 
-                content: systemPrompt
-            },
-            ...data,
-        ],
-        model: 'gpt-4o-mini',
-        stream: true,
-    })
-    console.log(await getContext(messages));
+    const messages = await req.json();
+    const user_message = messages[messages.length - 1].content;
+    const prompt = `Human: ${user_message}\nAssistant:`; 
+    console.log(await getContext(prompt));
+    return new NextResponse(resp)
+/*
     const stream = new ReadableStream({ //start streaming it
         async start(controller){
             const encoder = new TextEncoder()
@@ -90,4 +80,5 @@ export async function POST(req){    //frontend
     })
 
     return new NextResponse(stream) //return stream
-}
+*/
+    }
