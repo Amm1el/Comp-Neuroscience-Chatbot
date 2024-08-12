@@ -1,6 +1,10 @@
 import {NextResponse} from 'next/server'
+import { InvokeModelWithResponseStreamCommand, BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockAgentRuntimeClient, RetrieveAndGenerateCommand } from '@aws-sdk/client-bedrock-agent-runtime';
 
 const systemPrompt = 'You are an AI-powered customer support assistant for NeuroAI, a platform dedicated to providing AI-driven support for students interested in the field of computational neuroscience field.'
+
+const bedrockAgentRuntimeclient = new BedrockAgentRuntimeClient({ region: 'us-east-1' });
 /*
 Embedding is what the user puts in'
 1 hour: 45 minutes
@@ -43,8 +47,8 @@ async function getContext(query) {
             }
         };
 
-        const command = new retrieveAndGenerateCommand(params);
-        const response = await bedrock.Client.send(command);
+        const command = new RetrieveAndGenerateCommand(params);
+        const response = await bedrockAgentRuntimeclient.send(command);
         return response.output.text;
     } catch(error) {
         console.error('Error:', error);
