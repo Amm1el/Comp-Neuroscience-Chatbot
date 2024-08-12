@@ -60,7 +60,11 @@ export async function POST(req){    //frontend
     const messages = await req.json();
     const user_message = messages[messages.length - 1].content;
     const prompt = `Human: ${user_message}\nAssistant:`; 
-    console.log(await getContext(prompt));
+    console.log(messages);
+    console.log(user_message);
+    console.log(prompt);
+    resp = await getContext(prompt);
+    console.log(resp);
     return new NextResponse(resp)
 /*
     const stream = new ReadableStream({ //start streaming it
