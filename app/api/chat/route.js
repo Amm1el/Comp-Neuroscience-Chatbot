@@ -63,7 +63,7 @@ export async function POST(req){    //frontend
     console.log(messages);
     console.log(user_message);
     console.log(prompt);
-    resp = await getContext(prompt);
+    const resp = await getContext(prompt);
     console.log(resp);
     return new NextResponse(resp)
 /*
