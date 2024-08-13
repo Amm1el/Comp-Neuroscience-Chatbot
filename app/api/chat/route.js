@@ -1,23 +1,9 @@
 import {NextResponse} from 'next/server'
-import { InvokeModelWithResponseStreamCommand, BedrockRuntimeClient } from "@aws-sdk/client-bedrock-runtime";
 import { BedrockAgentRuntimeClient, RetrieveAndGenerateCommand } from '@aws-sdk/client-bedrock-agent-runtime';
 
 const systemPrompt = 'You are an AI-powered customer support assistant for NeuroAI, a platform dedicated to providing AI-driven support for students interested in the field of computational neuroscience field.'
 
 const bedrockAgentRuntimeclient = new BedrockAgentRuntimeClient({ region: 'us-east-1' });
-/*
-Embedding is what the user puts in'
-1 hour: 45 minutes
-must be implemented in javascript
-most of code is same
-js version of some code
-to insert into pinecone script allows, but take the query and convert into bedding.
-show response to user in front end.
-look at docs for pinecone and langchain, same idea. just syntax
-langchain pinecone website shows basically exact code.
-https://js.langchain.com/v0.2/docs/integrations/vectorstores/pinecone/
-
-/*
 
 /*
 1. NeuroAI offers AI-powered interviews for neuroscience students.
@@ -33,60 +19,40 @@ Your goal is to privde accurate information, assist with common inquiries, and e
 
 async function getContext(query) {
     try {
-        
         const params = {
-            input : {
-                text: query
+            input: {
+                text: query,
             },
             retrieveAndGenerateConfiguration: {
                 type: 'KNOWLEDGE_BASE',
                 knowledgeBaseConfiguration: {
                     knowledgeBaseId: process.env.KNOWLEDGE_BASE_ID,
-                    modelArn: process.env.MODEL_ARN
-                }
-            }
+                    modelArn: process.env.MODEL_ARN,
+                },
+            },
         };
 
         const command = new RetrieveAndGenerateCommand(params);
         const response = await bedrockAgentRuntimeclient.send(command);
         return response.output.text;
-    } catch(error) {
+    } catch (error) {
         console.error('Error:', error);
         return null;
     }
 }
 
-export async function POST(req){    //frontend
-    const messages = await req.json();
-    const user_message = messages[messages.length - 1].content;
-    const prompt = `Human: ${user_message}\nAssistant:`; 
-    console.log(messages);
-    console.log(user_message);
-    console.log(prompt);
-    const resp = await getContext(prompt);
-    console.log(resp);
-    return new NextResponse(resp)
-/*
-    const stream = new ReadableStream({ //start streaming it
-        async start(controller){
-            const encoder = new TextEncoder()
-            try{
-                for await (const chunk of completion){
-                    const content = chunk.choices[0]?.delta?.content
-                    if (content){
-                        const text = encoder.encode(content)
-                        controller.enqueue(text)
-                    }
-                }
-            }
-            catch(error){
-                controller.error(err)
-            } finally {
-                controller.close()
-            }
-        },
-    })
+// API route to handle POST requests
+export async function POST(req) {
+    try {
+        const messages = await req.json();
+        const user_message = messages[messages.length - 1].content;
+        const prompt = `Human: ${user_message}\nAssistant:`;
 
-    return new NextResponse(stream) //return stream
-*/
+        const resp = await getContext(prompt);
+
+        return NextResponse.json({ message: resp });
+    } catch (error) {
+        console.error('Error handling request:', error);
+        return new NextResponse('Internal Server Error', { status: 500 });
     }
+}
