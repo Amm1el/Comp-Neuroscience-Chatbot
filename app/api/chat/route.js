@@ -50,7 +50,7 @@ export async function POST(req) {
 
         const resp = await getContext(prompt);
 
-        return NextResponse.json({ message: resp });
+        return NextResponse.json(resp);
     } catch (error) {
         console.error('Error handling request:', error);
         return new NextResponse('Internal Server Error', { status: 500 });
